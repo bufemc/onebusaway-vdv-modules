@@ -41,7 +41,8 @@ public class DegressMinutesSecondsFieldMappingFactory implements FieldMappingFac
   
   private static class Impl extends AbstractFieldMapping implements Converter {
     
-    private static final Pattern FORMAT = Pattern.compile("^(-{0,1}\\d{2,3})(\\d{2})(\\d{2})(\\d{3})$");
+	// As few agencies use ILLEGAL syntax, we allow also just "0" or "1" to be a "coordinate", and 0 it afterwards
+    private static final Pattern FORMAT = Pattern.compile("^(-{0,1}\\d{1,3})(\\d{2})(\\d{2})(\\d{3})|(0|1)$");
 
     public Impl(Class<?> entityType, String csvFieldName, String objFieldName,
         boolean required) {
@@ -59,11 +60,22 @@ public class DegressMinutesSecondsFieldMappingFactory implements FieldMappingFac
       if (!matcher.matches()) {
         throw new ConversionException("Could not convert " + value + " to decimal degrees");
       }
-      int degrees = Integer.parseInt(matcher.group(1));
-      int minutes = Integer.parseInt(matcher.group(2));
-      double seconds = Integer.parseInt(matcher.group(3))
-          + Integer.parseInt(matcher.group(4)) / 1000.0d;
-      double decimalDegrees = degrees + (minutes / 60.0) + (seconds / 3600);
+
+      double decimalDegrees;
+      
+	  // Handling for ILLEGAL agency values with just "0/0" or "1/1", both are in the ocean
+      if (matcher.end() == 1) {
+        decimalDegrees = 0;
+      }
+      // Handling for legal values with at least "00000000" 
+      else {
+        int degrees = Integer.parseInt(matcher.group(1));
+        int minutes = Integer.parseInt(matcher.group(2));
+        double seconds = Integer.parseInt(matcher.group(3))
+            + Integer.parseInt(matcher.group(4)) / 1000.0d;
+        decimalDegrees = degrees + (minutes / 60.0) + (seconds / 3600);
+      }
+      
       object.setPropertyValue(_objFieldName, decimalDegrees);
     }
 

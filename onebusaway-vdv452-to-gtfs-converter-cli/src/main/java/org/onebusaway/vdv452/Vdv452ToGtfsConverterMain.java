@@ -17,6 +17,7 @@ package org.onebusaway.vdv452;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.commons.cli.AlreadySelectedException;
@@ -32,12 +33,16 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 public class Vdv452ToGtfsConverterMain {
   
   private static final String ARG_TIME_ZONE = "timeZone";
+  private static final String ENCODING = "encoding";
+  private static final String PREFER_REF_NAME = "preferRefName";
 
   private static CommandLineParser _parser = new PosixParser();
 
   private Options _options = new Options();
 
   public static void main(String[] args) {
+	// force decimal point, otherwise we get "50,006911","9,056472" instead of 50.006911,9.056472 in the stops export
+	Locale.setDefault(new Locale("en", "US"));
     Vdv452ToGtfsConverterMain m = new Vdv452ToGtfsConverterMain();
     m.run(args);
   }
@@ -76,6 +81,8 @@ public class Vdv452ToGtfsConverterMain {
 
   private void buildOptions() {
     _options.addOption(ARG_TIME_ZONE, true, ARG_TIME_ZONE);
+    //_options.addOption(ENCODING, true, ENCODING);
+    _options.addOption(PREFER_REF_NAME, false, PREFER_REF_NAME);
   }
 
   private void runApplication(CommandLine cli) throws IOException {
@@ -88,15 +95,28 @@ public class Vdv452ToGtfsConverterMain {
     Vdv452ToGtfsConverter converter = new Vdv452ToGtfsConverter();
     converter.setInputPath(new File(args[0]));
     converter.setOutputPath(new File(args[1]));
+
+    // Improve Output: what has been converted?
+    System.out.println("\n");
+    System.out.println("Input VDV452 folder: " + args[0]);
+    System.out.println("Output GTFS folder : " + args[1]);
+    System.out.println("\n");
+    System.out.println("Prefer ORT_REF_ORT_NAME instead of ORT_NAME: " + cli.hasOption(PREFER_REF_NAME));
+    System.out.println("\n");
     
     if (cli.hasOption(ARG_TIME_ZONE)) {
       converter.setTimeZone(TimeZone.getTimeZone(cli.getOptionValue(ARG_TIME_ZONE)));
+    }
+    //if (cli.hasOption(ENCODING)) {
+    //}
+    if (cli.hasOption(PREFER_REF_NAME)) {
+      org.onebusaway.vdv452.model.Stop.useRefName = true;
     }
     converter.run();
   }
 
   private void printHelp() {
-    System.err.println("usage: [program] path/to/vdv-input path/to/gtfs-output");
+    System.err.println("usage: [program] [-preferRefName] path/to/vdv-input path/to/gtfs-output");
   }
 
   private boolean needsHelp(String[] args) {

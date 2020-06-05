@@ -23,13 +23,23 @@ import org.onebusaway.vdv452.serialization.StopIdFieldMappingFactory;
 @CsvFields(filename = "REC_ORT.x10")
 public class Stop extends IdentityBean<StopId> {
 
+  // easy switch to use ORT_REF_ORT_NAME instead of ORT_NAME
+  public static boolean useRefName = false;
+
   private static final long serialVersionUID = 1L;
+
+  @CsvField(name = "ZONE_WABE_NR", optional=true)
+  private String zone;
 
   @CsvField(name = "ORT_NR", mapping = StopIdFieldMappingFactory.class)
   private StopId id;
 
-  @CsvField(name = "ORT_NAME")
+  @CsvField(name = "ORT_NAME", optional=true)
   private String name;
+
+  // This column could be prefered by human readers
+  @CsvField(name = "ORT_REF_ORT_NAME", optional=true)
+  private String refName;
 
   @CsvField(name = "ORT_POS_BREITE", mapping=DegressMinutesSecondsFieldMappingFactory.class)
   private double lat;
@@ -48,11 +58,18 @@ public class Stop extends IdentityBean<StopId> {
   }
 
   public String getName() {
+    // Could return refName instead.. configured by option?
+    if (useRefName)
+      return refName;
     return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void setRefName(String refName) {
+    this.refName = refName;
   }
 
   public double getLat() {
@@ -70,4 +87,13 @@ public class Stop extends IdentityBean<StopId> {
   public void setLng(double lng) {
     this.lng = lng;
   }
+  
+  public String getZone() {
+	    return zone;
+  }
+
+  public void setZone(String zone) {
+	    this.zone = zone;
+  }
+
 }

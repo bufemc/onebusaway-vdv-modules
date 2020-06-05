@@ -26,15 +26,7 @@ import org.onebusaway.csv_entities.schema.FieldMapping;
 import org.onebusaway.csv_entities.schema.FieldMappingFactory;
 import org.onebusaway.vdv452.Vdv452Dao;
 import org.onebusaway.vdv452.Vdv452Reader;
-import org.onebusaway.vdv452.model.DayType;
-import org.onebusaway.vdv452.model.Journey;
-import org.onebusaway.vdv452.model.Line;
-import org.onebusaway.vdv452.model.LineId;
-import org.onebusaway.vdv452.model.StopId;
-import org.onebusaway.vdv452.model.StopPoint;
-import org.onebusaway.vdv452.model.TimingGroup;
-import org.onebusaway.vdv452.model.VehicleType;
-import org.onebusaway.vdv452.model.VersionedId;
+import org.onebusaway.vdv452.model.*;
 
 public class EntityFieldMappingFactory implements FieldMappingFactory {
 
@@ -95,6 +87,9 @@ public class EntityFieldMappingFactory implements FieldMappingFactory {
       } else if (_objFieldType == Journey.class) {
         VersionedId id = IdFactory.resolveVersionedId(csvValues, _csvFieldName);
         return dao.getJourneyForId(id);
+      } else if (_objFieldType == Destination.class) {
+        VersionedId id = IdFactory.resolveVersionedId(csvValues, _csvFieldName);
+        return dao.getDestinationForId(id);
       }
       throw new IllegalStateException("unsupported entity type: "
           + _objFieldType);

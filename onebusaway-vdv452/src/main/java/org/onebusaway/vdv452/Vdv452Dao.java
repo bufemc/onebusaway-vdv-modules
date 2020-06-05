@@ -25,21 +25,7 @@ import java.util.Map;
 import org.onebusaway.collections.MappingLibrary;
 import org.onebusaway.collections.tuple.Pair;
 import org.onebusaway.collections.tuple.Tuples;
-import org.onebusaway.vdv452.model.DayType;
-import org.onebusaway.vdv452.model.Journey;
-import org.onebusaway.vdv452.model.Line;
-import org.onebusaway.vdv452.model.LineId;
-import org.onebusaway.vdv452.model.Period;
-import org.onebusaway.vdv452.model.RouteSequence;
-import org.onebusaway.vdv452.model.Stop;
-import org.onebusaway.vdv452.model.StopId;
-import org.onebusaway.vdv452.model.StopPoint;
-import org.onebusaway.vdv452.model.TimingGroup;
-import org.onebusaway.vdv452.model.TransportCompany;
-import org.onebusaway.vdv452.model.TravelTime;
-import org.onebusaway.vdv452.model.VehicleType;
-import org.onebusaway.vdv452.model.VersionedId;
-import org.onebusaway.vdv452.model.WaitTime;
+import org.onebusaway.vdv452.model.*;
 
 public class Vdv452Dao {
   
@@ -73,12 +59,20 @@ public class Vdv452Dao {
 
   private List<WaitTime> _waitTimes = new ArrayList<WaitTime>();
 
+  private List<JourneyWaitTime> _journeyWaitTimes = new ArrayList<JourneyWaitTime>();
+  private Map<Journey, List<JourneyWaitTime>> _journeyWaitTimesByJourney = null;
+
   private Map<TimingGroup, List<WaitTime>> _waitTimesByTimingGroup = null;
+
+  private Map<VersionedId, Destination> _destinationsById = new HashMap<VersionedId, Destination>();
 
   public void putEntity(Object bean) {
     if (bean instanceof TransportCompany) {
       TransportCompany company = (TransportCompany) bean;
       _transportCompaniesById.put(company.getId(), company);
+    } else if (bean instanceof Destination) {
+      Destination destination = (Destination) bean;
+      _destinationsById.put(destination.getId(), destination);
     } else if (bean instanceof DayType) {
       DayType dayType = (DayType) bean;
       _dayTypesById.put(dayType.getId(), dayType);
@@ -108,6 +102,8 @@ public class Vdv452Dao {
       _travelTimes.add((TravelTime) bean);
     } else if (bean instanceof WaitTime) {
       _waitTimes.add((WaitTime) bean);
+    } else if (bean instanceof JourneyWaitTime) {
+        _journeyWaitTimes.add((JourneyWaitTime) bean);
     }
   }
   
@@ -150,8 +146,9 @@ public class Vdv452Dao {
         Pair<StopPoint> pair = Tuples.pair(travelTime.getFromStop(),
             travelTime.getToStop());
         TravelTime existing = travelTimesByStopPair.put(pair, travelTime);
+        // no explaination what is checked here?
         if (existing != null) {
-          throw new IllegalStateException();
+        //  throw new IllegalStateException();
         }
       }
     }
@@ -198,6 +195,10 @@ public class Vdv452Dao {
     return _journeysById.get(id);
   }
 
+  public Destination getDestinationForId(VersionedId id) {
+    return _destinationsById.get(id);
+  }
+
   public List<RouteSequence> getRouteSequenceForLine(Line line) {
     if (_routeSequencesByLine == null) {
       _routeSequencesByLine = constructRouteSequencesByLine();
@@ -213,6 +214,19 @@ public class Vdv452Dao {
     }
     return routeSequencesByLine;
   }
+
+    public List<JourneyWaitTime> getWaitTimesForJourney(Journey journey) {
+        if (_journeyWaitTimesByJourney == null) {
+            _journeyWaitTimesByJourney = constructJourneyWaitTimesByJourney();
+        }
+        return list(_journeyWaitTimesByJourney.get(journey));
+    }
+
+    private Map<Journey, List<JourneyWaitTime>> constructJourneyWaitTimesByJourney() {
+        Map<Journey, List<JourneyWaitTime>> journeyWaitTimesByJourney = MappingLibrary.mapToValueList(
+                _journeyWaitTimes, "journey");
+        return journeyWaitTimesByJourney;
+    }
 
   private static <T> List<T> list(List<T> values) {
     if (values == null) {

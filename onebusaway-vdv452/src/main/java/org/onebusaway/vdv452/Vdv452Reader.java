@@ -28,27 +28,16 @@ import org.onebusaway.csv_entities.EntityHandler;
 import org.onebusaway.csv_entities.IndividualCsvEntityReader;
 import org.onebusaway.csv_entities.exceptions.CsvEntityIOException;
 import org.onebusaway.csv_entities.schema.EntitySchema;
-import org.onebusaway.vdv452.model.BaseVersion;
-import org.onebusaway.vdv452.model.Block;
-import org.onebusaway.vdv452.model.DayType;
-import org.onebusaway.vdv452.model.Journey;
-import org.onebusaway.vdv452.model.JourneyWaitTime;
-import org.onebusaway.vdv452.model.Line;
-import org.onebusaway.vdv452.model.Period;
-import org.onebusaway.vdv452.model.RouteSequence;
-import org.onebusaway.vdv452.model.Stop;
-import org.onebusaway.vdv452.model.StopPoint;
-import org.onebusaway.vdv452.model.TimingGroup;
-import org.onebusaway.vdv452.model.TransportCompany;
-import org.onebusaway.vdv452.model.TravelTime;
-import org.onebusaway.vdv452.model.VehicleType;
-import org.onebusaway.vdv452.model.WaitTime;
+import org.onebusaway.vdv452.model.*;
 import org.onebusaway.vdv452.serialization.IndividaulVdvEntityReader;
 import org.onebusaway.vdv452.serialization.VdvTokenizerStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Vdv452Reader extends CsvEntityReader {
+	
+  // Override encoding by parameter
+  public static String _encoding = "ISO-8859-1";
 
   public static final String DAO_CONTEXT_KEY = Vdv452Reader.class + ".daoKey";
 
@@ -72,6 +61,7 @@ public class Vdv452Reader extends CsvEntityReader {
     _entityClasses.add(TravelTime.class);    
     _entityClasses.add(WaitTime.class);
     _entityClasses.add(Line.class);
+    _entityClasses.add(Destination.class);
     _entityClasses.add(RouteSequence.class);
     _entityClasses.add(VehicleType.class);
     _entityClasses.add(Block.class);
@@ -111,7 +101,7 @@ public class Vdv452Reader extends CsvEntityReader {
   @Override
   public void readEntities(Class<?> entityClass, InputStream is)
       throws IOException, CsvEntityIOException {
-    readEntities(entityClass, new InputStreamReader(is, "ISO-8859-1"));
+    readEntities(entityClass, new InputStreamReader(is, _encoding));
   }
 
   @Override

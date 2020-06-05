@@ -64,6 +64,9 @@ public class TravelTime {
 
   public void setTravelTime(int travelTime) {
     this.travelTime = travelTime;
+    if (travelTime == 0 && fromStop != null) {
+    	System.err.println("WARN: travel time is 0: " + fromStop+" to: "+toStop);
+    }
   }
   
   @Override

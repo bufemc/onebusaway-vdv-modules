@@ -35,6 +35,9 @@ public class RouteSequence implements Comparable<RouteSequence> {
   @CsvField(name = "ORT_NR", mapping = EntityFieldMappingFactory.class)
   private StopPoint stop;
 
+  @CsvField(name = "ZNR_NR", mapping = EntityFieldMappingFactory.class, optional = true)
+  private Destination destination;
+
   public Line getLine() {
     return line;
   }
@@ -57,6 +60,12 @@ public class RouteSequence implements Comparable<RouteSequence> {
 
   public void setStop(StopPoint stop) {
     this.stop = stop;
+  }
+
+  public Destination getDestination() { return destination; }
+
+  public void setDestination(Destination destination) {
+    this.destination = destination;
   }
 
   @Override

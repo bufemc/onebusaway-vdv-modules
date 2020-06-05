@@ -40,6 +40,12 @@ public class Journey extends IdentityBean<VersionedId> {
   @CsvField(name = "TAGESART_NR", mapping = EntityFieldMappingFactory.class)
   private DayType dayType;
 
+  @CsvField(name = "FAHRTART_NR")
+  private int tripType;
+
+  @CsvField(name = "LEISTUNGSART_NR", optional = true)
+  private int serviceType = -1;  // -1 == unknown, unset
+
   @Override
   public VersionedId getId() {
     return id;
@@ -81,4 +87,12 @@ public class Journey extends IdentityBean<VersionedId> {
   public void setDayType(DayType dayType) {
     this.dayType = dayType;
   }
+
+  public int getTripType() { return tripType; }
+
+  public void setTripType(int tripType) {this.tripType = tripType; }
+
+  public int getServiceType() { return serviceType; }
+
+  public void setServiceType(int serviceType) {this.serviceType = serviceType; }
 }
